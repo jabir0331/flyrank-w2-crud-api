@@ -1,6 +1,9 @@
 const express = require("express");
 
 const app = express();
+
+app.use(express.json());
+
 const PORT = 3000;
 
 let INITIAL_TASKS = [
@@ -36,6 +39,17 @@ app.get("/tasks/:id", (req, res) => {
         return res.status(404).json({ error: `Task ${id} not found` });
     }
     res.status(200).json(task);
+});
+
+app.post("/tasks", (req, res) => {
+    const { title } = req.body;
+    if (!title || typeof title !== "string" || title.trim() === "") {
+        return res.status(400).json({ error: "Invalid task title" });
+    }
+    const nextId = INITIAL_TASKS.length > 0 ? Math.max(...INITIAL_TASKS.map(t => t.id)) + 1 : 1;
+    const newTask = { id: nextId, title, done: false };
+    INITIAL_TASKS.push(newTask);
+    res.status(201).json(newTask);
 });
 
 app.listen(PORT, () => {
